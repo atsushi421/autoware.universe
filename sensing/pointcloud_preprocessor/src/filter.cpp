@@ -60,6 +60,8 @@
 #include <utility>
 #include <vector>
 
+#include <pmu_analyzer.hpp>
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 pointcloud_preprocessor::Filter::Filter(
   const std::string & filter_name, const rclcpp::NodeOptions & options)
@@ -181,6 +183,9 @@ void pointcloud_preprocessor::Filter::computePublish(
   // Call the virtual method in the child
   filter(input, indices, *output);
 
+  // [区間3]  入力のTF-Frameが想定と異なる場合に pcl_ros::transformPointCloud で変換, timestampコピー
+  pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 8, false, 0);
+
   if (!convert_output_costly(output)) return;
 
   // Copy timestamp to keep it
@@ -188,6 +193,8 @@ void pointcloud_preprocessor::Filter::computePublish(
 
   // Publish a boost shared ptr
   pub_output_->publish(std::move(output));
+
+  pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 9, true, 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -216,6 +223,9 @@ rcl_interfaces::msg::SetParametersResult pointcloud_preprocessor::Filter::filter
 void pointcloud_preprocessor::Filter::input_indices_callback(
   const PointCloud2ConstPtr cloud, const PointIndicesConstPtr indices)
 {
+  // [区間1] 点群データの有効性検証, デバッグ情報の出力, 必要であればF-Frame間での座標変換
+  pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 1, false, 0);
+
   // If cloud is given, check if it's valid
   if (!isValid(cloud)) {
     RCLCPP_ERROR(this->get_logger(), "[input_indices_callback] Invalid input!");

@@ -56,12 +56,15 @@
 
 #include <vector>
 
+#include <pmu_analyzer.hpp>
+
 namespace pointcloud_preprocessor
 {
 VoxelGridDownsampleFilterComponent::VoxelGridDownsampleFilterComponent(
   const rclcpp::NodeOptions & options)
 : Filter("VoxelGridDownsampleFilter", options)
 {
+  pmu_analyzer::ELAPSED_TIME_INIT(filter_field_name_);
   // set initial parameters
   {
     voxel_size_x_ = static_cast<double>(declare_parameter("voxel_size_x", 0.3));
@@ -74,21 +77,44 @@ VoxelGridDownsampleFilterComponent::VoxelGridDownsampleFilterComponent(
     std::bind(&VoxelGridDownsampleFilterComponent::paramCallback, this, _1));
 }
 
+VoxelGridDownsampleFilterComponent::~VoxelGridDownsampleFilterComponent()
+{
+  pmu_analyzer::ELAPSED_TIME_CLOSE(filter_field_name_);
+}
+
 void VoxelGridDownsampleFilterComponent::filter(
   const PointCloud2ConstPtr & input, const IndicesPtr & /*indices*/, PointCloud2 & output)
 {
+  // 区間2-1 前処理
+  pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 2, false, 0);
   std::scoped_lock lock(mutex_);
   pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_input(new pcl::PointCloud<pcl::PointXYZ>);
   pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_output(new pcl::PointCloud<pcl::PointXYZ>);
+
+  // 区間2-2 ROSメッセージをPCL形式に変換
+  pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 3, false, 0);
   pcl::fromROSMsg(*input, *pcl_input);
+
+  int input_point_size = pcl_input->points.size();
+
+  // 区間2-3 input と同じ分のメモリを確保
+  pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 4, false, input_point_size);
   pcl_output->points.reserve(pcl_input->points.size());
+
+  // 区間2-4 メイン処理
+  pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 5, false, input_point_size);
   pcl::VoxelGrid<pcl::PointXYZ> filter;
-  filter.setInputCloud(pcl_input);
+  filter.setInputCloud(pcl_input);  // 入力点群へのポインタを用意
   // filter.setSaveLeafLayout(true);
-  filter.setLeafSize(voxel_size_x_, voxel_size_y_, voxel_size_z_);
+  filter.setLeafSize(voxel_size_x_, voxel_size_y_, voxel_size_z_);  // ボクセルのサイズを指定？
   filter.filter(*pcl_output);
 
+  // 区間2-5 PCL形式のデータをROSメッセージに変換
+  pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 6, false, input_point_size);
   pcl::toROSMsg(*pcl_output, output);
+
+  // 区間2-6 後処理
+  pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 7, true, input_point_size);
   output.header = input->header;
 }
 

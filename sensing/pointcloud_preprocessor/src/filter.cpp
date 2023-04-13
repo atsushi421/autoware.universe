@@ -183,18 +183,20 @@ void pointcloud_preprocessor::Filter::computePublish(
   // Call the virtual method in the child
   filter(input, indices, *output);
 
-  // [区間3]  入力のTF-Frameが想定と異なる場合に pcl_ros::transformPointCloud で変換, timestampコピー
+  // [区間3]  入力のTF-Frameが想定と異なる場合に pcl_ros::transformPointCloud で変換
   pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 8, false, 0);
 
   if (!convert_output_costly(output)) return;
 
+  // [区間4]  timestampコピー, publish
+  pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 9, false, 0);
   // Copy timestamp to keep it
   output->header.stamp = input->header.stamp;
 
   // Publish a boost shared ptr
   pub_output_->publish(std::move(output));
 
-  pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 9, true, 0);
+  pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 10, true, 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

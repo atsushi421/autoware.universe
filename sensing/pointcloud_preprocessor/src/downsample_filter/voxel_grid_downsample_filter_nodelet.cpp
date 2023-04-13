@@ -114,7 +114,7 @@ void VoxelGridDownsampleFilterComponent::filter(
   pcl::toROSMsg(*pcl_output, output);
 
   // 区間2-6 後処理
-  pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 7, true, input_point_size);
+  pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 7, false, input_point_size);
   output.header = input->header;
 }
 

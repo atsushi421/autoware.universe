@@ -67,6 +67,9 @@ pointcloud_preprocessor::Filter::Filter(
   const std::string & filter_name, const rclcpp::NodeOptions & options)
 : Node(filter_name, options), filter_field_name_(filter_name)
 {
+  int trace_id = 0;
+  std::cout << trace_id << std::endl;
+
   // Set parameters (moved from NodeletLazy onInit)
   {
     tf_input_frame_ = static_cast<std::string>(declare_parameter("input_frame", ""));
@@ -197,6 +200,8 @@ void pointcloud_preprocessor::Filter::computePublish(
   pub_output_->publish(std::move(output));
 
   pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 10, true, 0);
+  pmu_analyzer::PMU_TRACE_END(trace_id);
+  trace_id++;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -225,6 +230,7 @@ rcl_interfaces::msg::SetParametersResult pointcloud_preprocessor::Filter::filter
 void pointcloud_preprocessor::Filter::input_indices_callback(
   const PointCloud2ConstPtr cloud, const PointIndicesConstPtr indices)
 {
+  pmu_analyzer::PMU_TRACE_START(trace_id);
   // [区間1] 点群データの有効性検証, デバッグ情報の出力, 必要であればF-Frame間での座標変換
   pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 1, false, 0);
 

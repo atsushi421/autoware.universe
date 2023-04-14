@@ -134,6 +134,8 @@ public:
     const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
 
 protected:
+  int trace_id;
+
   struct TransformInfo
   {
     TransformInfo()

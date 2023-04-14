@@ -65,6 +65,7 @@ VoxelGridDownsampleFilterComponent::VoxelGridDownsampleFilterComponent(
 : Filter("VoxelGridDownsampleFilter", options)
 {
   pmu_analyzer::ELAPSED_TIME_INIT(filter_field_name_);
+  pmu_analyzer::PMU_INIT();
   // set initial parameters
   {
     voxel_size_x_ = static_cast<double>(declare_parameter("voxel_size_x", 0.3));
@@ -80,6 +81,7 @@ VoxelGridDownsampleFilterComponent::VoxelGridDownsampleFilterComponent(
 VoxelGridDownsampleFilterComponent::~VoxelGridDownsampleFilterComponent()
 {
   pmu_analyzer::ELAPSED_TIME_CLOSE(filter_field_name_);
+  pmu_analyzer::PMU_CLOSE();
 }
 
 void VoxelGridDownsampleFilterComponent::filter(

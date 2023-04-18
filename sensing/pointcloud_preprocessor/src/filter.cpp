@@ -52,6 +52,7 @@
 #include "pointcloud_preprocessor/filter.hpp"
 
 #include <pcl_ros/transforms.hpp>
+#include <pmu_analyzer.hpp>
 
 #include <pcl/io/io.h>
 
@@ -59,8 +60,6 @@
 #include <string>
 #include <utility>
 #include <vector>
-
-#include <pmu_analyzer.hpp>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 pointcloud_preprocessor::Filter::Filter(
@@ -200,8 +199,6 @@ void pointcloud_preprocessor::Filter::computePublish(
   pub_output_->publish(std::move(output));
 
   pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 10, true, 0);
-  pmu_analyzer::PMU_TRACE_END(trace_id);
-  trace_id++;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -230,7 +227,6 @@ rcl_interfaces::msg::SetParametersResult pointcloud_preprocessor::Filter::filter
 void pointcloud_preprocessor::Filter::input_indices_callback(
   const PointCloud2ConstPtr cloud, const PointIndicesConstPtr indices)
 {
-  pmu_analyzer::PMU_TRACE_START(trace_id);
   // [区間1] 点群データの有効性検証, デバッグ情報の出力, 必要であればF-Frame間での座標変換
   pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 1, false, 0);
 

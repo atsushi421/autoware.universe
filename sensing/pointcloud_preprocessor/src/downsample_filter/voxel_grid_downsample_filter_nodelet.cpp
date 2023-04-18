@@ -50,13 +50,13 @@
 
 #include "pointcloud_preprocessor/downsample_filter/voxel_grid_downsample_filter_nodelet.hpp"
 
+#include <pmu_analyzer.hpp>
+
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/search/kdtree.h>
 #include <pcl/segmentation/segment_differences.h>
 
 #include <vector>
-
-#include <pmu_analyzer.hpp>
 
 namespace pointcloud_preprocessor
 {
@@ -103,6 +103,7 @@ void VoxelGridDownsampleFilterComponent::filter(
   pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 4, false, input_point_size);
   pcl_output->points.reserve(pcl_input->points.size());
 
+  pmu_analyzer::PMU_TRACE_START(trace_id);
   // 区間2-4 メイン処理
   pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 5, false, input_point_size);
   pcl::VoxelGrid<pcl::PointXYZ> filter;
@@ -110,6 +111,8 @@ void VoxelGridDownsampleFilterComponent::filter(
   // filter.setSaveLeafLayout(true);
   filter.setLeafSize(voxel_size_x_, voxel_size_y_, voxel_size_z_);  // ボクセルのサイズを指定？
   filter.filter(*pcl_output);
+  pmu_analyzer::PMU_TRACE_END(trace_id);
+  trace_id++;
 
   // 区間2-5 PCL形式のデータをROSメッセージに変換
   pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 6, false, input_point_size);

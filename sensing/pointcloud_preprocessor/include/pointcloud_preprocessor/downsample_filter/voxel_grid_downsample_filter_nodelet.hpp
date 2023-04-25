@@ -114,6 +114,7 @@ private:
 public:
   PCL_MAKE_ALIGNED_OPERATOR_NEW
   explicit VoxelGridDownsampleFilterComponent(const rclcpp::NodeOptions & options);
+  ~VoxelGridDownsampleFilterComponent();
 };
 }  // namespace pointcloud_preprocessor
 

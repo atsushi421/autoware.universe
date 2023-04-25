@@ -50,6 +50,8 @@
 
 #include "pointcloud_preprocessor/downsample_filter/voxel_grid_downsample_filter_nodelet.hpp"
 
+#include <pmu_analyzer.hpp>
+
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/search/kdtree.h>
 #include <pcl/segmentation/segment_differences.h>
@@ -62,6 +64,7 @@ VoxelGridDownsampleFilterComponent::VoxelGridDownsampleFilterComponent(
   const rclcpp::NodeOptions & options)
 : Filter("VoxelGridDownsampleFilter", options)
 {
+  pmu_analyzer::ELAPSED_TIME_INIT(filter_field_name_);
   // set initial parameters
   {
     voxel_size_x_ = static_cast<float>(declare_parameter("voxel_size_x", 0.3));
@@ -78,6 +81,11 @@ VoxelGridDownsampleFilterComponent::VoxelGridDownsampleFilterComponent(
   using std::placeholders::_1;
   set_param_res_ = this->add_on_set_parameters_callback(
     std::bind(&VoxelGridDownsampleFilterComponent::paramCallback, this, _1));
+}
+
+VoxelGridDownsampleFilterComponent::~VoxelGridDownsampleFilterComponent()
+{
+  pmu_analyzer::ELAPSED_TIME_CLOSE(filter_field_name_);
 }
 
 // TODO(atsushi421): Temporary Implementation: Delete this function definition when all the filter
@@ -102,6 +110,7 @@ void VoxelGridDownsampleFilterComponent::faster_filter(
   int z_offset = input->fields[pcl::getFieldIndex(*input, "z")].offset;
   int intensity_offset = input->fields[pcl::getFieldIndex(*input, "intensity")].offset;
 
+  pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 2, false, 0);
   // Get the minimum and maximum dimensions
   Eigen::Vector3f min_p, max_p;
   min_p.setConstant(FLT_MAX);
@@ -119,6 +128,7 @@ void VoxelGridDownsampleFilterComponent::faster_filter(
     }
   }
 
+  pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 3, false, 0);
   // Check that the voxel size is not too small, given the size of the data
   if (
     ((static_cast<std::int64_t>((max_p[0] - min_p[0]) * inverse_voxel_size_[0]) + 1) *
@@ -148,6 +158,7 @@ void VoxelGridDownsampleFilterComponent::faster_filter(
   // Set up the division multiplier
   Eigen::Vector3i div_b_mul(1, div_b[0], div_b[0] * div_b[1]);
 
+  pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 4, false, 0);
   // Storage for mapping voxel coordinates to centroids
   std::unordered_map<uint32_t, Centroid> voxel_centroid_map;
   for (size_t global_offset = 0; global_offset + input->point_step <= input->data.size();
@@ -173,6 +184,7 @@ void VoxelGridDownsampleFilterComponent::faster_filter(
     }
   }
 
+  pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 5, false, 0);
   // Copy the centroids to the output
   output.row_step = voxel_centroid_map.size() * input->point_step;
   output.data.resize(output.row_step);
@@ -195,6 +207,7 @@ void VoxelGridDownsampleFilterComponent::faster_filter(
     output_data_size += input->point_step;
   }
 
+  pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 6, false, 0);
   // Post processing
   pcl_conversions::fromPCL(xyz_fields_, output.fields);
   output.width = voxel_centroid_map.size();

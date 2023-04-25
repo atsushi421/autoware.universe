@@ -20,7 +20,9 @@ include_directories(
   ${PCL_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
+  /home/atsushi22/pmu_analyzer/include
 )
+link_directories(/home/atsushi22/pmu_analyzer/lib)
 
 add_library(pointcloud_preprocessor_filter_base SHARED
   src/filter.cpp
@@ -68,6 +70,7 @@ target_link_libraries(pointcloud_preprocessor_filter
   ${Boost_LIBRARIES}
   ${OpenCV_LIBRARIES}
   ${PCL_LIBRARIES}
+  pmuanalyzer
 )
 
 # ========== Concatenate data ==========

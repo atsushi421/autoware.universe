@@ -65,6 +65,7 @@ VoxelGridDownsampleFilterComponent::VoxelGridDownsampleFilterComponent(
 : Filter("VoxelGridDownsampleFilter", options)
 {
   pmu_analyzer::ELAPSED_TIME_INIT(filter_field_name_);
+  pmu_analyzer::PMU_INIT();
   // set initial parameters
   {
     voxel_size_x_ = static_cast<float>(declare_parameter("voxel_size_x", 0.3));
@@ -86,6 +87,7 @@ VoxelGridDownsampleFilterComponent::VoxelGridDownsampleFilterComponent(
 VoxelGridDownsampleFilterComponent::~VoxelGridDownsampleFilterComponent()
 {
   pmu_analyzer::ELAPSED_TIME_CLOSE(filter_field_name_);
+  pmu_analyzer::PMU_CLOSE();
 }
 
 // TODO(atsushi421): Temporary Implementation: Delete this function definition when all the filter
@@ -216,6 +218,10 @@ void VoxelGridDownsampleFilterComponent::faster_filter(
   output.is_bigendian = input->is_bigendian;
   output.point_step = input->point_step;
   output.header = input->header;
+
+  std::cout << "sec " << output.header.stamp.sec << " nanosec " << output.header.stamp.nanosec
+            << std::endl;
+  std::cout << "data_size " << output.data.size() << std::endl;
 }
 
 rcl_interfaces::msg::SetParametersResult VoxelGridDownsampleFilterComponent::paramCallback(

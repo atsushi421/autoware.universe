@@ -218,10 +218,6 @@ void VoxelGridDownsampleFilterComponent::faster_filter(
   output.is_bigendian = input->is_bigendian;
   output.point_step = input->point_step;
   output.header = input->header;
-
-  std::cout << "sec " << output.header.stamp.sec << " nanosec " << output.header.stamp.nanosec
-            << std::endl;
-  std::cout << "data_size " << output.data.size() << std::endl;
 }
 
 rcl_interfaces::msg::SetParametersResult VoxelGridDownsampleFilterComponent::paramCallback(

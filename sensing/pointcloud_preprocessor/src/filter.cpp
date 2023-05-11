@@ -67,7 +67,7 @@ pointcloud_preprocessor::Filter::Filter(
 : Node(filter_name, options), filter_field_name_(filter_name)
 {
   int trace_id = 0;
-  std::cout << trace_id << std::endl;
+  (void)trace_id;
 
   // Set parameters (moved from NodeletLazy onInit)
   {

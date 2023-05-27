@@ -52,6 +52,7 @@
 #include "pointcloud_preprocessor/filter.hpp"
 
 #include <pcl_ros/transforms.hpp>
+#include <pmu_analyzer.hpp>
 
 #include <pcl/io/io.h>
 
@@ -406,6 +407,8 @@ bool pointcloud_preprocessor::Filter::convert_output_costly(std::unique_ptr<Poin
 void pointcloud_preprocessor::Filter::faster_input_indices_callback(
   const PointCloud2ConstPtr cloud, const PointIndicesConstPtr indices)
 {
+  pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 1, false, 0);
+
   if (!isValid(cloud)) {
     RCLCPP_ERROR(this->get_logger(), "[input_indices_callback] Invalid input!");
     return;
@@ -456,6 +459,8 @@ void pointcloud_preprocessor::Filter::faster_input_indices_callback(
 
   output->header.stamp = cloud->header.stamp;
   pub_output_->publish(std::move(output));
+
+  pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 2, true, 0);
 }
 
 // TODO(sykwer): Temporary Implementation: Remove this interface when all the filter nodes conform

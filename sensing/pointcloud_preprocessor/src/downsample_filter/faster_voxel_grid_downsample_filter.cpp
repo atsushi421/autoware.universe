@@ -77,6 +77,10 @@ void FasterVoxelGridDownsampleFilter::filter(
 
   // Copy the centroids to the output
   copy_centroids_to_output(voxel_centroid_map, output, transform_info);
+
+  std::cout << "sec " << output.header.stamp.sec << " nanosec " << output.header.stamp.nanosec
+            << std::endl;
+  std::cout << "data_size " << output.data.size() << std::endl;
 }
 
 Eigen::Vector3f FasterVoxelGridDownsampleFilter::get_point_from_global_offset(

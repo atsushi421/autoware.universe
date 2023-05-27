@@ -52,6 +52,8 @@
 
 #include "pointcloud_preprocessor/downsample_filter/faster_voxel_grid_dowmsample_filter.hpp"
 
+#include <pmu_analyzer.hpp>
+
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/search/kdtree.h>
 #include <pcl/segmentation/segment_differences.h>
@@ -64,6 +66,7 @@ VoxelGridDownsampleFilterComponent::VoxelGridDownsampleFilterComponent(
   const rclcpp::NodeOptions & options)
 : Filter("VoxelGridDownsampleFilter", options)
 {
+  pmu_analyzer::ELAPSED_TIME_INIT(filter_field_name_);
   // set initial parameters
   {
     voxel_size_x_ = static_cast<float>(declare_parameter("voxel_size_x", 0.3));
@@ -74,6 +77,11 @@ VoxelGridDownsampleFilterComponent::VoxelGridDownsampleFilterComponent(
   using std::placeholders::_1;
   set_param_res_ = this->add_on_set_parameters_callback(
     std::bind(&VoxelGridDownsampleFilterComponent::paramCallback, this, _1));
+}
+
+VoxelGridDownsampleFilterComponent::~VoxelGridDownsampleFilterComponent()
+{
+  pmu_analyzer::ELAPSED_TIME_CLOSE(filter_field_name_);
 }
 
 // TODO(atsushi421): Temporary Implementation: Delete this function definition when all the filter

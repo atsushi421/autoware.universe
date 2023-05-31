@@ -52,6 +52,7 @@
 #include "pointcloud_preprocessor/filter.hpp"
 
 #include <pcl_ros/transforms.hpp>
+#include <pmu_analyzer.hpp>
 
 #include <pcl/io/io.h>
 
@@ -66,6 +67,8 @@ pointcloud_preprocessor::Filter::Filter(
   const std::string & filter_name, const rclcpp::NodeOptions & options)
 : Node(filter_name, options), filter_field_name_(filter_name)
 {
+  trace_id = 0;
+
   // Set parameters (moved from NodeletLazy onInit)
   {
     tf_input_frame_ = static_cast<std::string>(declare_parameter("input_frame", ""));
@@ -406,6 +409,9 @@ bool pointcloud_preprocessor::Filter::convert_output_costly(std::unique_ptr<Poin
 void pointcloud_preprocessor::Filter::faster_input_indices_callback(
   const PointCloud2ConstPtr cloud, const PointIndicesConstPtr indices)
 {
+  pmu_analyzer::PMU_TRACE_START(trace_id);
+  pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 1, false, 0);
+
   if (!isValid(cloud)) {
     RCLCPP_ERROR(this->get_logger(), "[input_indices_callback] Invalid input!");
     return;
@@ -456,6 +462,10 @@ void pointcloud_preprocessor::Filter::faster_input_indices_callback(
 
   output->header.stamp = cloud->header.stamp;
   pub_output_->publish(std::move(output));
+
+  pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 100, false, 0);
+  pmu_analyzer::PMU_TRACE_END(trace_id);
+  trace_id++;
 }
 
 // TODO(sykwer): Temporary Implementation: Remove this interface when all the filter nodes conform

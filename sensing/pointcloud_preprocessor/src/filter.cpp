@@ -463,7 +463,7 @@ void pointcloud_preprocessor::Filter::faster_input_indices_callback(
   output->header.stamp = cloud->header.stamp;
   pub_output_->publish(std::move(output));
 
-  pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 100, false, 0);
+  pmu_analyzer::ELAPSED_TIME_TIMESTAMP(filter_field_name_, 2, false, 0);
   pmu_analyzer::PMU_TRACE_END(trace_id);
   trace_id++;
 }
